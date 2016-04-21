@@ -1,4 +1,4 @@
-package com.example.joshua.directyourfriends.Maps;
+package com.example.joshua.directyourfriends;
 
 /**
  * Created by Joshua on 4/7/2016.

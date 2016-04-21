@@ -54,7 +54,7 @@ public class DirectYourFriends extends AppCompatActivity {
             finish();
             Log.i("Finished sending email...", "");
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(MainActivity.this,
+            Toast.makeText(DirectYourFriends.this,
                     "There is no email client installed.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -64,6 +64,8 @@ public class DirectYourFriends extends AppCompatActivity {
         switch (v.getId())
         {
             case R.id.SendButton: sendMessage();
+                Toast.makeText(DirectYourFriends.this, "Message Was Sent", Toast.LENGTH_LONG).show();
+                finish();//go back to maps activity
                 break;
         }
     }

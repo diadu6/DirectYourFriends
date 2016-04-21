@@ -2,50 +2,36 @@ package com.example.joshua.directyourfriends;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Filter;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.gesture.Prediction;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Filterable;
-import android.widget.Toast;
 import android.widget.AutoCompleteTextView;
 
-import com.example.joshua.directyourfriends.Maps.directions;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.MapFragment;
 
+//import com.google.api.client.util.Key;
+//import com.google.api.client.http.HttpTransport;
 
 
-public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallback, OnClickListener {
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, OnClickListener {
 
     private final LatLng LOCATION_FROM = new LatLng(49.27645, -122.917587);
     private final LatLng LOCATION_TO = new LatLng(49.187500, -122.849000);
@@ -55,8 +41,8 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
 
     private GoogleMap mMap;
 
-    static final HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
-    static final JsonFactory JSON_FACTORY = new JacksonFactory();
+    //static final HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
+    //static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +54,8 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
         mapFragment.getMapAsync(this);
 
 
+        //Input database
+
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
         mMap.addMarker(new MarkerOptions().position(LOCATION_FROM).title("Go From Here"));
@@ -77,11 +65,11 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
         To = (AutoCompleteTextView) findViewById(R.id.ToEditText);
 
         ViewDirections.setOnClickListener(this);
-        From.setAdapter(new PlacesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line));
-        To.setAdapter(new PlacesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line));
+        //From.setAdapter(new PlacesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line));
+        //To.setAdapter(new PlacesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line));
     }
 
-    @Override
+
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
@@ -91,12 +79,12 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    @Override
+
     public void onItemSelected(AdapterView<?> parent, View view, int index, long id) {
-        mMap.setExtent(directions.get(index).getGeometry());
+        //mMap.setExtent(directions.get(index).getGeometry());
     }
 
-    @Override
+
     public void onNothingSelected(AdapterView<?> parent) { }
 
 
@@ -108,7 +96,7 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
         {
             case R.id.button:
                 showDirections();
-                //change frame-------------
+                startActivity(new Intent(MapsActivity.this, DirectYourFriends.class)); //Switch to DirectYourFriends Activity
                 break;
         }
     }
@@ -126,9 +114,21 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
         mMap.addMarker(new MarkerOptions().position(LOCATION_FROM).title("Find Me Here!"));
 
 
+
+
+        //Output database
+        db inData = new db();//////////////////////////////////////////////////////////////////
+
+
         //////////////////////////////////////////////////////////////
         //Parser
         //////////////////////////////////////////////////////////////
+
+
+/*
+        List<Route> routes = mResults.getRoutes();
+        Route mRoute = routes.get(0);
+
 
         // Get the list of directions from the Route object
         final List<RouteDirection> directions = mRoute.getRoutingDirections();
@@ -144,12 +144,13 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
                 android.R.layout.simple_spinner_item, flatArray);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
+*/
     }
+}
 
 
 
-
+/*
 
     //Autocomplete
 
@@ -249,6 +250,11 @@ public class MapsActivity extends FragmentActivity {//implements OnMapReadyCallb
 
     }
 }
+*/
+
+
+
+
 
 
 
