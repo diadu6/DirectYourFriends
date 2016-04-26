@@ -76,14 +76,14 @@ public class search_history {
     }
 
     //grab all rows
-    public ArrayList<Directions> getSearches(String directionSearch) {
+    public ArrayList<getDirectionsDB> getSearches(String directionSearch) {
         String where = DIRECTIONS_ID + "- ?";
         int id = getDirections(directionSearch).getId();
         String[] whereArgs = { Integer.toString(id) };
 
         this.openReadableDB();
         Cursor cursor = search_history.query(DIRECTIONS_TABLE, null, where, whereArgs, null, null, null);
-        ArrayList<Directions> searches = new ArrayList<Directions>();
+        ArrayList<getDirectionsDB> searches = new ArrayList<getDirectionsDB>();
         while (cursor.moveToNext()) {
             searches.add(getSearchFromCursor(cursor));
         }
@@ -94,16 +94,16 @@ public class search_history {
         return searches;
     }
 
-    public Directions getDirections(String name) {
+    public getDirectionsDB getDirections(String name) {
         String where = DIRECTIONS_NAME + "= ?";
         String[] whereArgs = { name };
 
         openReadableDB();
         Cursor cursor = search_history.query(DIRECTIONS_TABLE, null,
                 where, whereArgs, null, null, null);
-        Directions directions = null;
+        getDirectionsDB directions = null;
         cursor.moveToFirst();
-        directions = new Directions();
+        directions = new getDirectionsDB();
                 //cursor.getInt(DIRECTIONS_ID_COL),
                 //cursor.getString(DIRECTIONS_SEARCH_COL));
         if (cursor != null)
@@ -115,14 +115,14 @@ public class search_history {
 
 //          grab one row at a time
 
-//    public Directions getSearch(int id) {
+//    public getDirectionsDB getSearch(int id) {
 //        String where = DIRECTIONS_ID + "= ?";
 //       String[] whereArgs = { Integer.toString(id) };
 //
 //        this.openReadableDB();
 //        Cursor cursor = search_history.query(DIRECTIONS_TABLE, null, where, whereArgs, null, null, null);
 //        cursor.moveToFirst();
-//        Directions search = getSearchFromCursor(cursor);
+//        getDirectionsDB search = getSearchFromCursor(cursor);
 //        if (cursor != null)
 //            cursor.close();
 //        this.closeDB();
@@ -131,13 +131,13 @@ public class search_history {
 //    }
 
     //method to retrieve data from cursor
-    private static Directions getSearchFromCursor(Cursor cursor) {
+    private static getDirectionsDB getSearchFromCursor(Cursor cursor) {
         if (cursor == null || cursor.getCount() == 0) {
             return null;
         }
         else {
             try {
-                Directions search = new Directions();
+                getDirectionsDB search = new getDirectionsDB();
                         //cursor.getString(DIRECTIONS_ID_COL),
                         //cursor.getString(DIRECTIONS_SEARCH_COL));
                 return search;
@@ -148,7 +148,7 @@ public class search_history {
         }
     }
 
-    public long insertDirections(Directions search) {
+    public long insertDirections(getDirectionsDB search) {
         ContentValues cv = new ContentValues();
         cv.put(DIRECTIONS_ID, search.getId());
         cv.put(DIRECTIONS_SEARCH, search.getSearch());

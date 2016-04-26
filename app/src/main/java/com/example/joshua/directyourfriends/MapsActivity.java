@@ -1,10 +1,19 @@
 package com.example.joshua.directyourfriends;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Filter;
 
+import android.app.FragmentTransaction;
+import android.app.ListActivity;
 import android.content.Context;
+import android.net.Uri;
+import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.content.Intent;
@@ -14,8 +23,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Filterable;
 import android.widget.AutoCompleteTextView;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,6 +38,17 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.MapFragment;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+
+
 //import com.google.api.client.util.Key;
 //import com.google.api.client.http.HttpTransport;
 
@@ -33,9 +56,11 @@ import com.google.android.gms.maps.MapFragment;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, OnClickListener {
 
-    private final LatLng LOCATION_FROM = new LatLng(49.27645, -122.917587);
-    private final LatLng LOCATION_TO = new LatLng(49.187500, -122.849000);
     private Button ViewDirections;
+    private Button send;
+    private EditText DirectionsEditText;
+    private EditText emailEditText;
+
     private AutoCompleteTextView From;
     private AutoCompleteTextView To;
 
@@ -48,25 +73,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        //FrameLayout layout = new FrameLayout(this);//fragment
+        //layout.setId(R.id.map);//fragment
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        //        .findFragmentById(R.id.map);
+        //mapFragment.getMapAsync(this);
 
 
         //Input database
 
-        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        //mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
-        mMap.addMarker(new MarkerOptions().position(LOCATION_FROM).title("Go From Here"));
+        //mMap.addMarker(new MarkerOptions().position(LOCATION_FROM).title("Go From Here"));
 
         ViewDirections = (Button) findViewById(R.id.button);
+        send = (Button) findViewById(R.id.SendButton);
         From = (AutoCompleteTextView) findViewById(R.id.FromEditText);
         To = (AutoCompleteTextView) findViewById(R.id.ToEditText);
+        DirectionsEditText = (EditText) findViewById(R.id.DirectionsEditText);
+        emailEditText = (EditText) findViewById(R.id.emailEditText);
 
         ViewDirections.setOnClickListener(this);
+        send.setOnClickListener(this);
         //From.setAdapter(new PlacesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line));
         //To.setAdapter(new PlacesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line));
+        dbRead();
+
+        //Create and add a fragment to frame layout created above.
+        FragmentTransaction t = getFragmentManager().beginTransaction();
+        MapFragment myFragment = new MapFragment();
+        //t.add(layout.getId(), myFragment, "myFirstFragment");
+        t.commit();
     }
 
 
@@ -85,47 +125,106 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    public void onNothingSelected(AdapterView<?> parent) { }
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
 
 
-
-
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.button:
+                Intent intent = new Intent("com.example.joshua.directyourfriends.DirectYourFriends");
+                intent.putExtra("to", To.getText());
+                intent.putExtra("from", From.getText());
+                //startActivity(intent); //Switch to DirectYourFriends Activity
                 showDirections();
-                startActivity(new Intent(MapsActivity.this, DirectYourFriends.class)); //Switch to DirectYourFriends Activity
+                store(); //Database store
                 break;
+            case R.id.SendButton:
+                sendMessage();
+                Toast.makeText(MapsActivity.this, "Message Was Sent", Toast.LENGTH_LONG).show();
         }
     }
 
-    public void showDirections()
-    {
 
-
-        //////////////////////////////////move map to this location
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LOCATION_FROM, 16);
-        mMap.animateCamera(update);
-
-        /////////////////////////////////Add Marker
-        mMap.addMarker(new MarkerOptions().position(LOCATION_FROM).title("Find Me Here!"));
-
-
+    public void showDirections() {
 
 
         //Output database
-        db inData = new db();//////////////////////////////////////////////////////////////////
+        //db inData = new db();
 
 
-        //////////////////////////////////////////////////////////////
-        //Parser
-        //////////////////////////////////////////////////////////////
+        //Parse text directions from Google
+        //Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=location_start" + "daddr=location_end"));
+        //intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+        //startActivity(intent);
 
 
-/*
+
+        //String instruction = Object.getString("html_instructions");
+        //DirectionsEditText.setText(Html.fromHtml(instruction));
+
+
+        StringBuilder urlString = new StringBuilder();
+        Document doc = null;
+        urlString
+                .append("http://maps.google.com/maps/api/directions/xml?origin=");
+        urlString.append(39.2904);      //lat
+        urlString.append(",");
+        urlString.append(76.6122);      //Long
+        urlString.append("&destination=");// to
+        urlString.append(38.4719);      //lat
+        urlString.append(",");
+        urlString.append(78.8793);      //long
+        urlString.append("&sensor=true&mode=driving");
+        Log.d("url", "::" + urlString.toString());
+        HttpURLConnection urlConnection = null;
+        URL url = null;
+        try {
+            url = new URL(urlString.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            doc = (Document) db.parse(urlConnection.getInputStream());// Util.XMLfromString(response);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+        NodeList nl1, nl2;
+
+        nl1 = doc.getElementsByTagName("step");
+        if (nl1.getLength() > 0) {
+            String instruction = "";
+            for (int i = 0; i < nl1.getLength(); i++) {
+                Node node1 = nl1.item(i);
+                nl2 = node1.getChildNodes();
+                Node directionNode = nl2.item(getNodeIndex(nl2, "html_instructions"));
+
+                instruction = instruction + directionNode.getTextContent() + "\n";
+            }
+            DirectionsEditText.setText(instruction);
+        }
+
+        /*
+
+
+
         List<Route> routes = mResults.getRoutes();
         Route mRoute = routes.get(0);
 
@@ -146,6 +245,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 */
     }
+
+
+    public void sendMessage() {
+        //Send message through email
+        Log.i("Send email", "");
+
+        String[] TO = new String[]{emailEditText.getText().toString()};
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+
+
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);                               //Sending To
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Direct Your Friends!");         //Subject of Email
+        emailIntent.putExtra(Intent.EXTRA_TEXT, DirectionsEditText.getText());      //Body of email
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+            finish();
+            //Log.i("Finished sending email...", "");
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(MapsActivity.this,
+                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private int getNodeIndex(NodeList nl, String nodename) {
+        for(int i = 0 ; i < nl.getLength() ; i++) {
+            if(nl.item(i).getNodeName().equals(nodename))
+                return i;
+        }
+        return -1;
+    }
+    public void store()
+    {
+        //search_history search_history = new search_history();
+        getDirectionsDB search = new getDirectionsDB("string being stored");
+        //long insertId = search_history.insertDirections(search);
+
+    }
+    public void dbRead()
+    {
+        /*
+        ArrayList<getDirectionsDB> search = search_history.getSearches("uvihvb");
+        for (getDirectionsDB t : searches)
+        {
+            sb.append(t.getId() + "|" + t.getSearch() + "\n");
+        }
+        */
+    }
+
 }
 
 
@@ -251,8 +400,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 }
 */
+///////////////////////////////////Map Location Stuff
+/*
+ //////////////////////////////////move map to this location
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LOCATION_FROM, 16);
+        mMap.animateCamera(update);
 
-
+        /////////////////////////////////Add Marker
+        mMap.addMarker(new MarkerOptions().position(LOCATION_FROM).title("Find Me Here!"));
+ */
 
 
 

@@ -4,8 +4,6 @@
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
 
@@ -25,8 +23,8 @@
         android:id="@+id/linearLayout"
         android:weightSum="1"
         android:layout_below="@+id/textView3"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true">
+        android:layout_centerHorizontal="true"
+        >
 
         <LinearLayout
             android:orientation="horizontal"
@@ -91,17 +89,6 @@
 
 
 
-<fragment
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_below="@+id/button"
-    tools:context="com.example.joshua.directyourfriends.MapsActivity" />
-
 
 
 
@@ -114,4 +101,59 @@
         android:layout_below="@+id/linearLayout"
         android:layout_centerHorizontal="true" />
 
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/DirectionsEditText"
+        android:width="300dp"
+        android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true"
+
+        android:inputType="textMultiLine"
+        android:lines="8"
+        android:minLines="10"
+        android:gravity="top|left"
+        android:scrollbars="vertical" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:id="@+id/SendButton"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/emailEditText"
+        android:width="250dp"
+        android:layout_below="@+id/DirectionsEditText"
+        android:layout_toRightOf="@+id/textView4"
+        android:layout_toEndOf="@+id/textView4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Email"
+        android:id="@+id/textView4"
+        android:textSize="30dp"
+        android:layout_alignTop="@+id/emailEditText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+
+    <!-- Fragment
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/button"
+        tools:context="com.example.joshua.directyourfriends.MapsActivity" />
+    -->
 </RelativeLayout>
